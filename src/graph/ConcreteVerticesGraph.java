@@ -11,154 +11,124 @@ import java.util.*;
  */
 public class ConcreteVerticesGraph implements Graph<String> {
 
-  private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Vertex> vertices = new ArrayList<>();
 
-  // Abstraction function:
-  //   The List<Vertex> vertices represents a graph where each Vertex object
-  //   represents a node in the graph and its associated edges.
+    // Abstraction function:
+    //   Represents a graph with a list of vertices and their connections
+    // Representation invariant:
+    //   No two vertices have the same label
+    // Safety from rep exposure:
+    //   Vertices list is private and final, no direct exposure
 
-  // Representation invariant:
-  //   vertices list must not be null.
-
-  // Safety from rep exposure:
-  //   - The vertices field is private and final.
-  //   - Methods that return vertices provide defensive copies.
-
-  /**
-   * Constructs a new ConcreteVerticesGraph.
-   */
-  public ConcreteVerticesGraph() {
-    checkRep();
-  }
-
-  /**
-   * Checks if the representation invariant holds.
-   */
-  private void checkRep() {
-    assert vertices != null : "Vertices list cannot be null";
-  }
-
-  /**
-   * Adds a vertex to the graph.
-   *
-   * @param vertex The vertex to be added.
-   * @return True if the vertex was added successfully, false if the vertex already exists.
-   */
-  @Override
-  public boolean add(String vertex) {
-    // Create a new Vertex only if it doesn't exist
-    for (Vertex v : vertices) {
-      if (v.toString().equals(vertex)) {
-        return false; // Vertex already exists
-      }
+    // Constructor
+    public ConcreteVerticesGraph() {
+        // Empty constructor, as the graph starts with no vertices initially
     }
-    Vertex newVertex = new Vertex();
-    newVertex.addTarget(vertex, 0); // Adding a self-loop with weight 0
-    vertices.add(newVertex);
-    return true;
-  }
 
-  /**
-   * Sets a directed edge with a weight between two vertices in the graph.
-   *
-   * @param source The source vertex.
-   * @param target The target vertex.
-   * @param weight The weight of the edge.
-   * @return The weight of the edge set, or -1 if the source vertex doesn't exist.
-   */
-  @Override
-  public int set(String source, String target, int weight) {
-    for (Vertex v : vertices) {
-      if (v.toString().equals(source)) {
-        v.addTarget(target, weight);
-        return weight;
-      }
+    // Check representation invariant
+    private void checkRep() {
+        Set<String> labels = new HashSet<>();
+        for (Vertex vertex : vertices) {
+            if (labels.contains(vertex.getLabel())) {
+                throw new RuntimeException("Duplicate vertex label found: " + vertex.getLabel());
+            }
+            labels.add(vertex.getLabel());
+        }
     }
-    return -1; // Source vertex doesn't exist
-  }
 
-  /**
-   * Removes a vertex from the graph.
-   *
-   * @param vertex The vertex to be removed.
-   * @return True if the vertex was removed successfully, false if the vertex doesn't exist.
-   */
-  @Override
-  public boolean remove(String vertex) {
-    for (Vertex v : vertices) {
-      if (v.toString().equals(vertex)) {
-        vertices.remove(v);
-        return true;
-      }
+    @Override
+    public boolean add(String vertex) {
+        if (!containsVertex(vertex)) {
+            vertices.add(new Vertex(vertex));
+            checkRep();
+            return true;
+        }
+        return false;
     }
-    return false; // Vertex not found
-  }
 
-  /**
-   * Retrieves all vertices in the graph.
-   *
-   * @return Set containing all vertices in the graph.
-   */
-  @Override
-  public Set<String> vertices() {
-    Set<String> allVertices = new HashSet<>();
-    for (Vertex v : vertices) {
-      allVertices.addAll(v.getSources().keySet());
-      allVertices.addAll(v.getTargets().keySet());
-    }
-    return allVertices;
-  }
+    @Override
+    public int set(String source, String target, int weight) {
+        Vertex sourceVertex = findVertex(source);
+        Vertex targetVertex = findVertex(target);
 
-  /**
-   * Retrieves sources for a given target vertex.
-   *
-   * @param target The target vertex.
-   * @return Map of source vertices and their corresponding edge weights, or an empty map if the target vertex doesn't exist.
-   */
-  @Override
-  public Map<String, Integer> sources(String target) {
-    Map<String, Integer> sourceMap = new HashMap<>();
-    for (Vertex v : vertices) {
-      if (v.toString().equals(target)) {
-        sourceMap.putAll(v.getSources());
-        return sourceMap;
-      }
-    }
-    return Collections.emptyMap(); // Target vertex doesn't exist
-  }
+        if (sourceVertex == null || targetVertex == null) {
+            throw new IllegalArgumentException("Source or target vertex not found");
+        }
 
-  /**
-   * Retrieves targets for a given source vertex.
-   *
-   * @param source The source vertex.
-   * @return Map of target vertices and their corresponding edge weights, or an empty map if the source vertex doesn't exist.
-   */
-  @Override
-  public Map<String, Integer> targets(String source) {
-    Map<String, Integer> targetMap = new HashMap<>();
-    for (Vertex v : vertices) {
-      if (v.toString().equals(source)) {
-        targetMap.putAll(v.getTargets());
-        return targetMap;
-      }
+        int previousWeight = sourceVertex.getEdges().getOrDefault(target, 0);
+        if (weight != 0) {
+            sourceVertex.addEdge(target, weight);
+        } else {
+            sourceVertex.removeEdge(target);
+        }
+        checkRep();
+        return previousWeight;
     }
-    return Collections.emptyMap(); // Source vertex doesn't exist
-  }
 
-  /**
-   * Returns a string representation of the graph.
-   *
-   * @return String representation of the graph.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    for (Vertex v : vertices) {
-      sb.append(v.toString()).append("\n");
+    @Override
+    public boolean remove(String vertex) {
+        Vertex toRemove = findVertex(vertex);
+        if (toRemove != null) {
+            vertices.remove(toRemove);
+            for (Vertex v : vertices) {
+                v.removeEdge(vertex);
+            }
+            checkRep();
+            return true;
+        }
+        return false;
     }
-    return sb.toString();
-  }
+
+    @Override
+    public Set<String> vertices() {
+        Set<String> labels = new HashSet<>();
+        for (Vertex vertex : vertices) {
+            labels.add(vertex.getLabel());
+        }
+        return labels;
+    }
+
+    @Override
+    public Map<String, Integer> sources(String target) {
+        Map<String, Integer> sources = new HashMap<>();
+        for (Vertex vertex : vertices) {
+            if (vertex.getEdges().containsKey(target)) {
+                sources.put(vertex.getLabel(), vertex.getEdges().get(target));
+            }
+        }
+        return sources;
+    }
+
+    @Override
+    public Map<String, Integer> targets(String source) {
+        Vertex sourceVertex = findVertex(source);
+        if (sourceVertex != null) {
+            return sourceVertex.getEdges();
+        }
+        return Collections.emptyMap();
+    }
+
+    private boolean containsVertex(String label) {
+        return findVertex(label) != null;
+    }
+
+    private Vertex findVertex(String label) {
+        for (Vertex vertex : vertices) {
+            if (vertex.getLabel().equals(label)) {
+                return vertex;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "ConcreteVerticesGraph{" +
+                "vertices=" + vertices +
+                '}';
+    }
 }
+
 
 /**
  * Represents a vertex in the graph.
@@ -166,102 +136,56 @@ public class ConcreteVerticesGraph implements Graph<String> {
  * This class is internal to the rep of ConcreteVerticesGraph.
  */
 class Vertex {
+    private final String label;
+    private final Map<String, Integer> edges; // Mapping from target vertex label to edge weight
 
-  private final Map<String, Integer> sources;
-  private final Map<String, Integer> targets;
+    // Abstraction function:
+    //   Represents a vertex with a unique label and outgoing edges to other vertices with their weights
+    // Representation invariant:
+    //   label != null, edges != null
+    // Safety from rep exposure:
+    //   Fields are private and immutable
+    
+    // Constructor
+    public Vertex(String label) {
+        this.label = label;
+        this.edges = new HashMap<>();
+    }
+    
+    // Check representation invariant
+    private void checkRep() {
+        assert label != null : "Vertex label cannot be null";
+        assert edges != null : "Edges map cannot be null";
+    }
 
-  /**
-   * Abstraction function:
-   * Represents a vertex in the graph.
-   * The sources map holds edges coming into this vertex.
-   * The targets map holds edges going out from this vertex.
-   */
+    // Add an outgoing edge from this vertex to another with the given weight
+    public void addEdge(String target, int weight) {
+        edges.put(target, weight);
+        checkRep();
+    }
 
-  /**
-   * Representation invariant:
-   * sources and targets maps must not be null.
-   */
+    // Remove an outgoing edge from this vertex to another
+    public void removeEdge(String target) {
+        edges.remove(target);
+        checkRep();
+    }
 
-  /**
-   * Constructs a new Vertex.
-   */
-  Vertex() {
-    sources = new HashMap<>();
-    targets = new HashMap<>();
-    checkRep();
-  }
+ // Get all outgoing edges from this vertex
+    public Map<String, Integer> getEdges() {
+        return new HashMap<>(edges); // Return a copy to avoid exposing internal representation
+    }
 
-  /**
-   * Checks if the representation invariant holds.
-   */
-  private void checkRep() {
-    assert sources != null : "Sources map cannot be null";
-    assert targets != null : "Targets map cannot be null";
-  }
+    // Get the label of this vertex
+    public String getLabel() {
+        return label;
+    }
 
-  /**
-   * Adds an edge from the source vertex to this vertex with the given weight.
-   *
-   * @param source The source vertex.
-   * @param weight The weight of the edge.
-   */
-  void addSource(String source, int weight) {
-    sources.put(source, weight);
-  }
-
-  /**
-   * Adds an edge from this vertex to the target vertex with the given weight.
-   *
-   * @param target The target vertex.
-   * @param weight The weight of the edge.
-   */
-  void addTarget(String target, int weight) {
-    targets.put(target, weight);
-  }
-
-  /**
-   * Removes the edge coming from the source vertex to this vertex.
-   *
-   * @param source The source vertex.
-   */
-  void removeSource(String source) {
-    sources.remove(source);
-  }
-
-  /**
-   * Removes the edge going from this vertex to the target vertex.
-   *
-   * @param target The target vertex.
-   */
-  void removeTarget(String target) {
-    targets.remove(target);
-  }
-
-  /**
-   * Retrieves the sources map for this vertex.
-   *
-   * @return The sources map of this vertex.
-   */
-  public Map<String, Integer> getSources() {
-    return new HashMap<>(sources);
-  }
-
-  /**
-   * Retrieves the targets map for this vertex.
-   *
-   * @return The targets map of this vertex.
-   */
-  public Map<String, Integer> getTargets() {
-    return new HashMap<>(targets);
-  }
-
-  /**
-   * Returns a string representation of the Vertex.
-   *
-   * @return String representation of the Vertex.
-   */
-  @Override
-  public String toString() {
-    return "Vertex{" + "sources=" + sources + ", targets=" + targets + '}';
-  }
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "label='" + label + '\'' +
+                ", edges=" + edges +
+                '}';
+    }
 }
+
