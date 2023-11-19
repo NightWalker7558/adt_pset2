@@ -10,6 +10,43 @@ import java.util.Set;
 
 import org.junit.Test;
 
+/**
+ * Testing Strategy for ConcreteVerticesGraph:
+ * 
+ * - Test adding vertices:
+ *   - Add single vertices.
+ *   - Attempt to add duplicate vertices.
+ * 
+ * - Test setting edges:
+ *   - Add edges between vertices with various weights.
+ *   - Update edge weights.
+ *   - Remove edges by setting weight to 0.
+ * 
+ * - Test removing vertices:
+ *   - Remove existing and non-existing vertices.
+ * 
+ * - Test getting vertices:
+ *   - Add vertices and check if they are present.
+ * 
+ * - Test getting sources and targets:
+ *   - Set various edges between vertices and check the sources and targets.
+ *   - Check sources and targets for vertices without edges.
+ */
+
+/**
+ * Testing Strategy for Vertex:
+ * 
+ * - Test getting and setting vertex label:
+ *   - Initialize a vertex with a label and retrieve it.
+ * 
+ * - Test adding and removing edges:
+ *   - Add edges to the vertex with various weights.
+ *   - Remove edges and ensure they are no longer present.
+ * 
+ * - Test retrieving edges:
+ *   - Add multiple edges and check if the retrieved edges match.
+ */
+
 public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Override
@@ -17,6 +54,11 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
         return new ConcreteVerticesGraph();
     }
 
+    /**
+     * Tests various graph operations in the ConcreteVerticesGraph implementation.
+     * Verifies the functionalities of adding vertices, setting edges, removing vertices,
+     * retrieving vertices, setting sources and targets, and related edge operations.
+     */
     @Test
     public void testGraphOperations() {
         Graph<String> graph = emptyInstance();
@@ -59,6 +101,10 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
         assertEquals(0, graph.targets("C").size());
     }
 
+    /**
+     * Tests various operations on the Vertex class.
+     * Verifies functionalities of adding edges, retrieving edges, and removing edges.
+     */
     @Test
     public void testVertexOperations() {
         Vertex vertex = new Vertex("X");

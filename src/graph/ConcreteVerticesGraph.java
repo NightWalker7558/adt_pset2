@@ -20,12 +20,18 @@ public class ConcreteVerticesGraph implements Graph<String> {
     // Safety from rep exposure:
     //   Vertices list is private and final, no direct exposure
 
-    // Constructor
+    /**
+     * Constructs an empty ConcreteVerticesGraph.
+     */
     public ConcreteVerticesGraph() {
         // Empty constructor, as the graph starts with no vertices initially
     }
 
-    // Check representation invariant
+    /**
+     * Checks the representation invariant of the graph.
+     * Verifies that no two vertices have the same label.
+     * @throws RuntimeException if a duplicate vertex label is found.
+     */
     private void checkRep() {
         Set<String> labels = new HashSet<>();
         for (Vertex vertex : vertices) {
@@ -36,6 +42,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
         }
     }
 
+    /**
+     * Adds a vertex to the graph.
+     * @param vertex The vertex to be added.
+     * @return true if the vertex was added, false if it already exists in the graph.
+     */
     @Override
     public boolean add(String vertex) {
         if (!containsVertex(vertex)) {
@@ -46,6 +57,13 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return false;
     }
 
+    /**
+     * Sets or updates an edge between source and target vertices with a weight.
+     * @param source The source vertex.
+     * @param target The target vertex.
+     * @param weight The weight of the edge.
+     * @return the previous weight of the edge, or zero if there was no such edge.
+     */
     @Override
     public int set(String source, String target, int weight) {
         Vertex sourceVertex = findVertex(source);
@@ -65,6 +83,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return previousWeight;
     }
 
+    /**
+     * Removes a vertex from the graph.
+     * @param vertex The vertex to be removed.
+     * @return true if the vertex was removed, false if it doesn't exist in the graph.
+     */
     @Override
     public boolean remove(String vertex) {
         Vertex toRemove = findVertex(vertex);
@@ -79,6 +102,10 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return false;
     }
 
+    /**
+     * Retrieves all vertices in the graph.
+     * @return the set of vertices in the graph.
+     */
     @Override
     public Set<String> vertices() {
         Set<String> labels = new HashSet<>();
@@ -88,6 +115,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return labels;
     }
 
+    /**
+     * Retrieves sources with directed edges to a target vertex and their weights.
+     * @param target The target vertex.
+     * @return a map of source vertices and their edge weights to the target vertex.
+     */
     @Override
     public Map<String, Integer> sources(String target) {
         Map<String, Integer> sources = new HashMap<>();
@@ -99,6 +131,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return sources;
     }
 
+    /**
+     * Retrieves targets with directed edges from a source vertex and their weights.
+     * @param source The source vertex.
+     * @return a map of target vertices and their edge weights from the source vertex.
+     */
     @Override
     public Map<String, Integer> targets(String source) {
         Vertex sourceVertex = findVertex(source);
@@ -108,10 +145,20 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return Collections.emptyMap();
     }
 
+    /**
+     * Checks if a vertex with a given label exists in the graph.
+     * @param label The label of the vertex to check.
+     * @return true if the vertex exists, false otherwise.
+     */
     private boolean containsVertex(String label) {
         return findVertex(label) != null;
     }
 
+    /**
+     * Finds and retrieves a vertex with the given label from the graph.
+     * @param label The label of the vertex to find.
+     * @return the found vertex or null if not found.
+     */
     private Vertex findVertex(String label) {
         for (Vertex vertex : vertices) {
             if (vertex.getLabel().equals(label)) {
@@ -121,6 +168,10 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return null;
     }
 
+    /**
+     * Provides a string representation of the graph.
+     * @return a string representing the graph.
+     */
     @Override
     public String toString() {
         return "ConcreteVerticesGraph{" +
@@ -146,40 +197,64 @@ class Vertex {
     // Safety from rep exposure:
     //   Fields are private and immutable
     
-    // Constructor
+    /**
+     * Constructs a Vertex with the specified label.
+     * @param label The label for the vertex.
+     */
     public Vertex(String label) {
         this.label = label;
         this.edges = new HashMap<>();
     }
     
-    // Check representation invariant
+    /**
+     * Checks the representation invariant of the Vertex class.
+     * Verifies that the label and edges map of the vertex are not null.
+     * @throws AssertionError if the label or edges map is null.
+     */
     private void checkRep() {
         assert label != null : "Vertex label cannot be null";
         assert edges != null : "Edges map cannot be null";
     }
 
-    // Add an outgoing edge from this vertex to another with the given weight
+    /**
+     * Adds an edge from this vertex to another with a specified weight.
+     * @param target The target vertex.
+     * @param weight The weight of the edge.
+     */
     public void addEdge(String target, int weight) {
         edges.put(target, weight);
         checkRep();
     }
 
-    // Remove an outgoing edge from this vertex to another
+    /**
+     * Removes an edge from this vertex to another.
+     * @param target The target vertex.
+     */
     public void removeEdge(String target) {
         edges.remove(target);
         checkRep();
     }
 
- // Get all outgoing edges from this vertex
+    /**
+     * Retrieves all outgoing edges from this vertex.
+     * @return a map of target vertices and their edge weights.
+     */
     public Map<String, Integer> getEdges() {
         return new HashMap<>(edges); // Return a copy to avoid exposing internal representation
     }
 
-    // Get the label of this vertex
+    /**
+     * Retrieves the label of this vertex.
+     * @return the label of the vertex.
+     */
     public String getLabel() {
         return label;
     }
 
+    /**
+     * Provides a string representation of the vertex.
+     * @return a string representing the vertex.
+     */
     @Override
     public String toString() {
         return "Vertex{" +
