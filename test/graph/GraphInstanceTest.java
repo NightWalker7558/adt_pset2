@@ -8,8 +8,32 @@ import java.util.Set;
 import org.junit.Test;
 
 public abstract class GraphInstanceTest {
+	
+	/**
+	 * Testing Strategy for GraphInstanceTest:
+	 * - `testAssertionsEnabled()`: Ensures that assertions are enabled in the test environment
+	 * - `testInitialVerticesEmpty()`: Verifies that a newly created graph instance has no vertices initially
+	 * - `testAddVertex()`: Tests the addition of a vertex to the graph
+	 * - `testRemoveVertex()`: Tests the removal of a vertex from the graph
+	 * - `testSetEdge()`: Tests setting edges between vertices and updating edge weights
+	 * - `testRemoveEdge()`: Tests the removal of edges between vertices
+	 * - `testSourcesAndTargets()`: Tests retrieval of sources and targets for specific vertices
+	 * - `emptyInstance()`: Abstract method to be overridden by implementation-specific test classes
+	 * - This method provides a new empty graph instance of the particular implementation for testing
+	 */
 
-    // Existing tests...
+
+	@Test(expected=AssertionError.class)
+    public void testAssertionsEnabled() {
+        assert false; // make sure assertions are enabled with VM argument: -ea
+    }
+
+    @Test
+    public void testInitialVerticesEmpty() {
+        // TODO you may use, change, or remove this test
+        assertEquals("expected new graph to have no vertices",
+                Collections.emptySet(), emptyInstance().vertices());
+    }
 
     @Test
     public void testAddVertex() {
@@ -76,8 +100,6 @@ public abstract class GraphInstanceTest {
         assertEquals(2, (int) targets.get("B"));
         assertEquals(3, (int) targets.get("C"));
     }
-
-    // Additional tests for other methods...
 
     /**
      * Overridden by implementation-specific test classes.

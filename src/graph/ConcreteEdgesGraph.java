@@ -21,15 +21,15 @@ public class ConcreteEdgesGraph implements Graph<String> {
     private final Set<String> vertices = new HashSet<>();
     private final List<Edge> edges = new ArrayList<>();
 
-    // Abstraction function:
-    // Represents a directed graph with labeled vertices and weighted edges.
-    // Representation invariant:
-    // - vertices is a set of non-null strings representing unique vertex labels.
-    // - edges is a list of non-null Edge objects.
-    // - The source and target vertices of each edge are in the vertices set.
-    // Safety from rep exposure:
-    // - All fields are private and final.
-    // - Return defensive copies of mutable collections.
+//     Abstraction function:
+//     Represents a directed graph with labeled vertices and weighted edges.
+//     Representation invariant:
+//     - vertices is a set of non-null strings representing unique vertex labels.
+//     - edges is a list of non-null Edge objects.
+//     - The source and target vertices of each edge are in the vertices set.
+//     Safety from rep exposure:
+//     - All fields are private and final.
+//     - Return defensive copies of mutable collections.
 
     /**
      * Checks the representation invariant of the ConcreteEdgesGraph.
